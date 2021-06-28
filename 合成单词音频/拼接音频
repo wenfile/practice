@@ -1,0 +1,91 @@
+let fs = require("fs"),
+  //文件夹路径
+  file_sequence = fs.readdirSync("D:/hebingyinping/1-100"),
+  file_en = fs.readdirSync("D:/hebingyinping/Day25/en"),
+  clips_en = [],
+  file_zh = fs.readdirSync("D:/hebingyinping/Day25/zh"),
+  clips_zh = [],
+//  files = fs.readdirSync("./files"),
+  clips = [],
+  stream,
+  currentfile,
+  //创建一个新的文件，作为合并完的结果
+  dhh = fs.createWriteStream("D:/hebingyinping/Day25/dd.mp3");
+
+sequence = r_sort(file_sequence);
+clips_en = r_sort(file_en);
+clips_zh = r_sort(file_zh);
+console.log(sequence)
+console.log(clips_en.length)
+console.log(clips_zh)
+
+for (i = 0; i <= clips_zh.length; i++){
+    //从 clips 数组里选取一个文件作为当前文件
+     seq = "D:/hebingyinping/1-100/" + sequence.shift();
+    //将文件读出来 存在变量里
+    stream = fs.createReadStream(seq);
+    stream.pipe(dhh, { end: false });
+    en = "D:/hebingyinping/Day25/en/" + clips_en.shift();
+    stream = fs.createReadStream(en);
+    stream.pipe(dhh, { end: false });
+    // three = "D:/hebingyinping/1-100/" + sequence.shift();
+    // stream = fs.createReadStream(three);
+    // //将读出的文件写入待合并的文件里
+    // stream.pipe(dhh, { end: false });
+    //写入完成
+    stream.on("end", function () {
+        console.log(currentfile + "完成合并");
+    })
+    // clips.push(sequence[i]);
+    // clips.push(clips_en[i]);
+    // clips.push(sequence[100]);
+    // clips.push(clips_en[i]);
+    // clips.push(sequence[100]);
+    // clips.push(clips_en[i]);
+    // clips.push(sequence[100]);
+    // clips.push(clips_zh[i]);
+    // clips.push(sequence[101]);
+}
+console.log(clips)
+
+ function r_sort(filepath){
+    files = []
+    // 读取文件夹里的文件名字
+    filepath.forEach(function (file) {
+        files.push(file.split(".")[0]);
+    });
+
+    // 文件名排序
+    files.sort(function (a, b) {
+      return a - b;
+    });
+
+    new_files = []
+    files.forEach(function (file) {
+        new_files.push(file + ".mp3")
+    });
+    return new_files;
+}
+
+// 拼接函数
+function main() {
+  //检查是否拼接完成
+  if (!clips.length) {
+    dhh.end("Done");
+    return;
+  }
+  //从 clips 数组里选取一个文件作为当前文件
+  currentfile = "D:/hebingyinping/1-100" + clips.shift();
+  //将文件读出来 存在变量里
+  stream = fs.createReadStream(currentfile);
+  //将读出的文件写入待合并的文件里
+  stream.pipe(dhh, { end: false });
+  //写入完成
+  stream.on("end", function () {
+    console.log(currentfile + "完成合并");
+    //合并下一个。
+    main();
+  });
+}
+
+// main();
